@@ -1,0 +1,17 @@
+{
+  "name": "Haute Habits",
+  "short_name": "Haute Habits",
+  "description": "Eat well. Move well. Spend well. Meal plans on a budget, plus a workout tracker.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#5a2196",
+  "theme_color": "#6F29B5",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1ea">
+  <meta name="application-name" content="Haute Habits">
+  <meta name="description" content="Plan meals around your health goals and grocery budget, and track your workouts.">
+  <title>Haute Habits</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Haute Habits">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ================= WELCOME (first visit only) ================= -->
+  <section id="welcome" class="welcome" aria-labelledby="welcomeTitle" hidden>
+    <div class="w-orb" aria-hidden="true"></div>
+    <div class="w-orb2" aria-hidden="true"></div>
+    <p class="w-top">Meals · Movement · Money</p>
+    <div class="w-mid">
+      <h1 id="welcomeTitle" class="w-title">Haute<br><i>Habits</i></h1>
+      <p class="w-tag">Eat well. Move well. Spend well.</p>
+      <p class="w-sub">Your week of meals, workouts and groceries, beautifully in budget.</p>
+      <div class="w-pills"><span>100+ meals</span><span>Workout tracker</span><span>Budget plans</span></div>
+      <button type="button" class="w-btn" id="beginBtn">Begin your week</button>
+      <p class="w-small">Private by design. Your data never leaves your phone.</p>
+    </div>
+  </section>
+  <header class="app-header">
+    <p class="wordmark" id="appName">Haute Habits</p>
+    <h1 class="greeting" id="greeting">Hello</h1>
+    <p class="today" id="todayText"></p>
+  </header>
+
+  <main>
+    <!-- ================= GOALS ================= -->
+    <section id="tab-setup" class="tab" aria-labelledby="nav-setup">
+      <form id="setupForm" class="card" novalidate>
+        <h2>Your goals</h2>
+        <p class="hint top">Tell us a little about you. Everything stays on this device.</p>
+
+        <label class="field">
+          <span>Your first name <small>(optional)</small></span>
+          <input name="name" type="text" maxlength="30" autocomplete="given-name" placeholder="For your greeting">
+        </label>
+
+        <label class="field">
+          <span>Main goal</span>
+          <select name="goal">
+            <option value="lose">Lose weight</option>
+            <option value="maintain" selected>Maintain weight</option>
+            <option value="build">Build muscle</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Eating style</span>
+          <select name="style">
+            <option value="any" selected>No preference</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="highprotein">High-protein</option>
+          </select>
+        </label>
+
+        <fieldset class="checks" id="catChips">
+          <legend>Foods I eat <small>(untick any you skip)</small></legend>
+          <!-- filled in by app.js -->
+        </fieldset>
+
+        <div class="row">
+          <label class="field">
+            <span>Weekly grocery budget</span>
+            <select name="budget"><!-- filled in by app.js --></select>
+          </label>
+          <label class="field">
+            <span>Meals per day</span>
+            <select name="mealsPerDay">
+              <option value="3" selected>3 meals</option>
+              <option value="2">2 meals (lunch &amp; dinner)</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="choice">
+          <legend>Daily calorie target</legend>
+          <label class="radio"><input type="radio" name="calMethod" value="suggest" checked> <span><b>Claude's quick suggestion</b><small>Uses sex, age &amp; activity only</small></span></label>
+          <label class="radio"><input type="radio" name="calMethod" value="estimate"> <span><b>Estimate from my body stats</b><small>Adds height &amp; weight for a closer number</small></span></label>
+          <label class="radio"><input type="radio" name="calMethod" value="manual"> <span><b>I'll type my own</b><small>For example, a number from your doctor</small></span></label>
+        </fieldset>
+
+        <fieldset id="manualFields" class="sub" hidden>
+          <label class="field">
+            <span>Calories per day</span>
+            <input name="calories" type="number" inputmode="numeric" min="1000" max="5000" step="50" value="2000">
+          </label>
+        </fieldset>
+
+        <fieldset id="profileFields" class="sub">
+          <div class="row">
+            <label class="field">
+              <span>Sex <small>(used only for the math)</small></span>
+              <select name="sex">
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Age</span>
+              <input name="age" type="number" inputmode="numeric" min="18" max="100" value="25">
+            </label>
+          </div>
+          <label class="field">
+            <span>Activity level</span>
+            <select name="activity">
+              <option value="sedentary">Mostly sitting</option>
+              <option value="light" selected>Light exercise 1–3 days/week</option>
+              <option value="moderate">Moderate exercise 3–5 days/week</option>
+              <option value="very">Hard exercise 6–7 days/week</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset id="bodyFields" class="sub" hidden>
+          <div class="row">
+            <label class="field">
+              <span>Height (ft)</span>
+              <input name="heightFt" type="number" inputmode="numeric" min="4" max="7" value="5">
+            </label>
+            <label class="field">
+              <span>Height (in)</span>
+              <input name="heightIn" type="number" inputmode="numeric" min="0" max="11" value="6">
+            </label>
+            <label class="field">
+              <span>Weight (lb)</span>
+              <input name="weightLb" type="number" inputmode="decimal" min="70" max="600" value="150">
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="estimate" id="estimateOut" aria-live="polite"></div>
+
+        <p class="error" id="formError" role="alert"></p>
+        <button type="submit" class="btn primary block">Save &amp; build my week</button>
+      </form>
+
+      <div class="card subtle">
+        <h2>Start over</h2>
+        <p class="hint">Clears your goals, meal plan, your own meals, workouts and grocery checkmarks from this device.</p>
+        <button type="button" class="btn danger" id="resetBtn">Reset everything</button>
+      </div>
+    </section>
+
+    <!-- ================= PLAN ================= -->
+    <section id="tab-week" class="tab" aria-labelledby="nav-week" hidden>
+      <div id="weekEmpty" class="card empty">
+        <h2>No plan yet</h2>
+        <p>Tell us your goals and budget first, then we'll build your week.</p>
+        <button type="button" class="btn primary" data-goto="setup">Set up my goals</button>
+      </div>
+
+      <div id="weekContent" hidden>
+        <div class="card summary" id="summary"></div>
+        <div class="toolbar">
+          <button type="button" class="btn primary" id="rebuildBtn">↻ Rebuild week</button>
+          <p class="hint">Rebuilding keeps any meal you've locked 🔒. A meal you choose with <b>Swap</b> gets locked for you.</p>
+        </div>
+        <div id="days"></div>
+      </div>
+    </section>
+
+    <!-- ================= MEALS ================= -->
+    <section id="tab-meals" class="tab" aria-labelledby="nav-meals" hidden>
+      <div class="card">
+        <div class="card-head">
+          <h2>Meal library</h2>
+          <span id="libCount" class="pill"></span>
+        </div>
+        <label class="field search">
+          <span class="sr-only">Search meals</span>
+          <input id="libSearch" type="search" placeholder="Search meals or ingredients" autocomplete="off">
+        </label>
+        <div class="chip-row" id="libChips" role="group" aria-label="Filter by category"></div>
+        <ul id="libList" class="lib-list"></ul>
+      </div>
+
+      <details class="card add-card" id="addMealCard">
+        <summary><h2>＋ Add your own meal</h2></summary>
+        <form id="mealForm" novalidate>
+          <p class="hint top">Your meals join the library with a ★, and the planner picks them a little more often. Enter amounts for <b>one serving</b>.</p>
+
+          <label class="field">
+            <span>Meal name</span>
+            <input name="name" type="text" maxlength="60" placeholder="e.g., Mom's chicken soup" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span>Category</span>
+            <select name="category"><!-- filled in by app.js --></select>
+          </label>
+
+          <fieldset class="checks">
+            <legend>When can you eat it?</legend>
+            <label class="check"><input type="checkbox" name="slot" value="breakfast"> Breakfast</label>
+            <label class="check"><input type="checkbox" name="slot" value="lunch" checked> Lunch</label>
+            <label class="check"><input type="checkbox" name="slot" value="dinner" checked> Dinner</label>
+          </fieldset>
+
+          <div class="row">
+            <label class="field">
+              <span>Cost ($)</span>
+              <input name="cost" type="number" inputmode="decimal" min="0" max="50" step="0.05" placeholder="2.50">
+            </label>
+            <label class="field">
+              <span>Calories</span>
+              <input name="cal" type="number" inputmode="numeric" min="50" max="3000" placeholder="550">
+            </label>
+            <label class="field">
+              <span>Protein (g)</span>
+              <input name="protein" type="number" inputmode="numeric" min="0" max="200" placeholder="30">
+            </label>
+          </div>
+
+          <label class="check solo" id="veganWrap"><input type="checkbox" name="vegan"> Vegan (no animal products)</label>
+
+          <label class="field">
+            <span>Ingredients <small>(optional, one per line)</small></span>
+            <textarea name="ingredients" rows="4" placeholder="6 oz chicken breast&#10;1 cup broccoli&#10;0.5 cup rice"></textarea>
+          </label>
+          <p class="hint">Start a line with an amount and unit (cup, tbsp, tsp, oz, lb, slice, can) so the grocery list adds it up correctly. A line with no number counts as 1.</p>
+
+          <p class="error" id="mealError" role="alert"></p>
+          <button type="submit" class="btn primary block">Add meal</button>
+          <p class="notice ok" id="mealMsg" aria-live="polite" hidden></p>
+        </form>
+      </details>
+    </section>
+
+    <!-- ================= WORKOUTS ================= -->
+    <section id="tab-workouts" class="tab" aria-labelledby="nav-workouts" hidden>
+      <div class="card" id="moveSummary"></div>
+
+      <form id="workoutForm" class="card" novalidate>
+        <h2>Log a workout</h2>
+        <fieldset class="checks" id="typeChips">
+          <legend>Type</legend>
+          <!-- filled in by app.js -->
+        </fieldset>
+        <div class="row">
+          <label class="field">
+            <span>Minutes</span>
+            <input name="minutes" type="number" inputmode="numeric" min="1" max="600" placeholder="30">
+          </label>
+          <label class="field">
+            <span>Date</span>
+            <input name="date" type="date">
+          </label>
+        </div>
+        <fieldset class="checks segmented">
+          <legend>How hard did it feel?</legend>
+          <label class="check"><input type="radio" name="intensity" value="0"> Easy</label>
+          <label class="check"><input type="radio" name="intensity" value="1" checked> Moderate</label>
+          <label class="check"><input type="radio" name="intensity" value="2"> Hard</label>
+        </fieldset>
+        <label class="field">
+          <span>Note <small>(optional)</small></span>
+          <input name="note" type="text" maxlength="80" placeholder="e.g., Leg day: squats 3×10">
+        </label>
+        <p class="error" id="workoutError" role="alert"></p>
+        <button type="submit" class="btn primary block">Log workout</button>
+        <p class="notice ok" id="workoutMsg" aria-live="polite" hidden></p>
+      </form>
+
+      <form id="goalForm" class="card" novalidate>
+        <h2>Weekly goal</h2>
+        <div class="row">
+          <label class="field">
+            <span>Aim for</span>
+            <input name="value" type="number" inputmode="numeric" min="1" max="2000" value="150">
+          </label>
+          <label class="field">
+            <span>&nbsp;</span>
+            <select name="kind">
+              <option value="minutes" selected>minutes</option>
+              <option value="sessions">workouts</option>
+            </select>
+          </label>
+        </div>
+        <p class="hint top">General guidelines suggest at least 150 minutes of moderate activity a week for adults, plus strength training twice a week.</p>
+        <button type="submit" class="btn">Save goal</button>
+        <p class="hint" id="goalMsg" aria-live="polite"></p>
+      </form>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>History</h2>
+          <span id="historyCount" class="pill"></span>
+        </div>
+        <p class="hint" id="historyEmpty">No workouts logged yet.</p>
+        <ul id="historyList" class="history-list"></ul>
+      </div>
+    </section>
+
+    <!-- ================= GROCERIES ================= -->
+    <section id="tab-groceries" class="tab" aria-labelledby="nav-groceries" hidden>
+      <div id="groceryEmpty" class="card empty">
+        <h2>No grocery list yet</h2>
+        <p>Your list appears here once you build a week of meals.</p>
+        <button type="button" class="btn primary" data-goto="setup">Set up my goals</button>
+      </div>
+      <div id="groceryContent" class="card" hidden>
+        <div class="card-head">
+          <h2>Grocery list</h2>
+          <span id="groceryCount" class="pill"></span>
+        </div>
+        <p class="hint">Amounts cover the whole week. Your store total may be higher than the plan's estimate because you usually buy whole packages, but leftovers carry over to next week.</p>
+        <ul id="groceryList" class="grocery-list"></ul>
+        <div class="btn-row">
+          <button type="button" class="btn" id="copyBtn">Copy list</button>
+          <button type="button" class="btn" id="clearChecksBtn">Uncheck all</button>
+        </div>
+        <p class="hint" id="copyMsg" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <footer class="disclaimer">
+      Costs, calories, protein and calories burned are rough estimates for planning only. This app is not medical, nutrition or fitness advice. Talk to a doctor or registered dietitian before making big changes to your diet or exercise. Your information stays on this device and is never sent anywhere.
+    </footer>
+  </main>
+
+  <!-- Swap dialog -->
+  <dialog id="swapDialog" aria-labelledby="swapTitle">
+    <div class="dialog-head">
+      <h2 id="swapTitle">Swap meal</h2>
+      <button type="button" class="icon-btn" id="swapClose" aria-label="Close">✕</button>
+    </div>
+    <p class="hint" id="swapSub"></p>
+    <ul id="swapList" class="swap-list"></ul>
+  </dialog>
+
+  <nav class="tabbar" aria-label="Sections">
+    <button type="button" id="nav-setup" data-tab="setup">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8"/></svg>Goals</button>
+    <button type="button" id="nav-week" data-tab="week">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Plan</button>
+    <button type="button" id="nav-meals" data-tab="meals">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h16a8 8 0 0 1-16 0z"/><path d="M9 9c0-2 2-2 2-4M13 9c0-2 2-2 2-4"/></svg>Meals</button>
+    <button type="button" id="nav-workouts" data-tab="workouts">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3l2.5-6 4 12 2.5-6h6"/></svg>Workouts</button>
+    <button type="button" id="nav-groceries" data-tab="groceries">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.3 11.2a2 2 0 0 1-2 1.8H8.3a2 2 0 0 1-2-1.8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Groceries</button>
+  </nav>
+
+  <script src="meals.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -368,6 +368,37 @@ dialog::backdrop { background: rgba(58, 35, 18, 0.4); }
 .day-bar.today .bar-day { color: var(--brand); }
 .day-bar.today .bar-track { outline: 2px solid var(--lilac); outline-offset: 2px; }
 
+/* ---------- Foods I don't eat ---------- */
+.avoid-add { display: flex; gap: 8px; align-items: center; width: 100%; }
+.avoid-add input { flex: 1; min-width: 0; }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chip-wrap:empty { display: none; }
+fieldset.avoid .hint { margin-top: 8px; }
+
+/* ---------- Meal prep + Today ---------- */
+.prep-note { font-size: 0.82rem; color: var(--brown); font-weight: 600; margin: 2px 0 4px; }
+.food-title { font-weight: 600; font-size: 0.88rem; margin: 14px 0 6px; }
+.food-title small { font-weight: 400; color: var(--muted); }
+.today-list { list-style: none; padding: 0; margin: 0; }
+.today-list li {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  border-top: 1px solid var(--line); padding: 10px 0;
+}
+.today-list .meal-name { margin: 2px 0 0; }
+.today-list .meta { margin: 0; }
+.today-main { min-width: 0; }
+.today-list li.eaten .meal-name { color: var(--muted); }
+.btn.eaten-btn { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+.food-form { border-top: 1px solid var(--line); margin-top: 12px; }
+.food-form .row { align-items: center; }
+.food-form .field { margin-bottom: 0; }
+.food-form .field.cal { flex: 0 0 84px; }
+.food-form .btn { flex: none; }
+.food-form .error { margin-top: 8px; }
+.over-text { color: var(--red); }
+.pill.warn-pill { background: var(--red-soft); color: var(--red); }
+.add-body { padding: 0 18px 18px; }
+
 /* ---------- Groceries ---------- */
 .grocery-list { list-style: none; padding: 0; margin: 12px 0 0; }
 .grocery-list li { border-top: 1px solid var(--line); }
@@ -380,6 +411,30 @@ dialog::backdrop { background: rgba(58, 35, 18, 0.4); }
 .g-item { flex: 1; }
 .g-qty { color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
 .grocery-list li.done .g-item { text-decoration: line-through; color: var(--muted); }
+
+.grocery-list label { padding-bottom: 6px; }
+.g-icon { font-size: 1.2rem; width: 1.5rem; text-align: center; flex: none; }
+.g-price { display: flex; align-items: center; gap: 8px; padding: 0 2px 12px 34px; }
+.g-price .dollar { color: var(--muted); font-weight: 600; }
+.g-price input { min-height: 40px; padding: 8px 12px; font-size: 16px; }
+.g-price .price-in { width: 92px; flex: none; }
+.g-price .brand-in { flex: 1; min-width: 0; }
+.grocery-list li.done .g-price .price-in { border-color: var(--lavender); background: var(--brand-soft); }
+
+/* Running total, stays visible while you scroll the list */
+.cart-bar {
+  position: sticky; top: calc(8px + env(safe-area-inset-top)); z-index: 5;
+  background: var(--brand); color: #fff;
+  border-radius: 18px; padding: 12px 16px; margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(111, 41, 181, 0.28);
+}
+.cart-bar:empty { display: none; }
+.cart-main { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cart-main strong { font-family: var(--serif); font-weight: 500; font-size: 1.6rem; }
+.cart-label { font-weight: 600; }
+.cart-sub { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 0.8rem; opacity: 0.9; }
+.cart-bar .over-text { color: #ffd9d1; font-weight: 700; }
+#clearPricesWrap { margin-top: 10px; }
 
 /* ---------- Footer ---------- */
 .disclaimer {
@@ -479,3 +534,4 @@ body.welcoming .tabbar { display: none; }
   .app-header { text-align: center; padding-top: 36px; }
   .greeting { font-size: 2.4rem; }
 }
+.tag.skip { background: var(--red-soft); color: var(--red); }

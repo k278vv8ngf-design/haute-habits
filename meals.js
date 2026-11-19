@@ -6,7 +6,7 @@
 
   Fields:
     id        unique short code
-    category  "chicken" (chicken & turkey), "seafood", "beef", "pork" or "vegetarian"
+    category  "chicken" (chicken & turkey), "seafood", "beef" (beef & lamb), "pork" or "vegetarian"
     name      what the user sees
     slots     which meal times it can fill: "breakfast", "lunch", "dinner"
     cost      estimated US grocery cost per serving, in dollars
@@ -1049,6 +1049,625 @@ window.MEALS = [
       { item: "Shredded mozzarella", qty: 0.33, unit: "cup" },
       { item: "Tomatoes", qty: 1, unit: "" },
       { item: "Romaine lettuce", qty: 1, unit: "cup" }
+    ]
+  },
+  /* ---------- Added Nov 2026: ideas from a list of 100 easy meals (our own simplified versions) ---------- */
+  {
+    id: "n1", category: "vegetarian", name: "Maple brown sugar oatmeal", slots: ["breakfast"],
+    cost: 0.85, cal: 370, protein: 9, tags: ["vegetarian", "vegan"],
+    ingredients: [
+      { item: "Rolled oats", qty: 0.5, unit: "cup" },
+      { item: "Almond milk", qty: 1, unit: "cup" },
+      { item: "Maple syrup", qty: 1, unit: "tbsp" },
+      { item: "Brown sugar", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n2", category: "pork", name: "Sausage gravy & biscuits", slots: ["breakfast"],
+    cost: 1.90, cal: 640, protein: 20, tags: [],
+    ingredients: [
+      { item: "Biscuits (refrigerated)", qty: 2, unit: "" },
+      { item: "Breakfast sausage", qty: 3, unit: "oz" },
+      { item: "Milk", qty: 0.75, unit: "cup" }
+    ]
+  },
+  {
+    id: "n3", category: "pork", name: "Breakfast sausage & egg casserole", slots: ["breakfast"],
+    cost: 1.75, cal: 480, protein: 28, tags: [],
+    ingredients: [
+      { item: "Eggs", qty: 2, unit: "" },
+      { item: "Breakfast sausage", qty: 2, unit: "oz" },
+      { item: "Bread", qty: 1, unit: "slice" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" },
+      { item: "Milk", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n4", category: "vegetarian", name: "Kimchi fried egg over rice", slots: ["breakfast", "lunch"],
+    cost: 1.40, cal: 430, protein: 17, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Eggs", qty: 2, unit: "" },
+      { item: "Kimchi (vegetarian)", qty: 0.5, unit: "cup" },
+      { item: "Soy sauce", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n5", category: "vegetarian", name: "Grilled peanut butter & jelly", slots: ["breakfast", "lunch"],
+    cost: 0.75, cal: 520, protein: 14, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Peanut butter", qty: 2, unit: "tbsp" },
+      { item: "Jelly", qty: 1, unit: "tbsp" },
+      { item: "Butter", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n6", category: "chicken", name: "Chicken fried rice", slots: ["lunch", "dinner"],
+    cost: 2.10, cal: 620, protein: 45, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 5, unit: "oz" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Eggs", qty: 1, unit: "" },
+      { item: "Frozen mixed vegetables", qty: 0.75, unit: "cup" },
+      { item: "Soy sauce", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n7", category: "chicken", name: "Crispy baked chicken tenders with sweet potato fries", slots: ["dinner"],
+    cost: 2.60, cal: 640, protein: 50, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 6, unit: "oz" },
+      { item: "Panko breadcrumbs", qty: 0.33, unit: "cup" },
+      { item: "Eggs", qty: 1, unit: "" },
+      { item: "Sweet potatoes", qty: 1, unit: "" }
+    ]
+  },
+  {
+    id: "n8", category: "chicken", name: "Bang bang chicken rice bowl", slots: ["lunch", "dinner"],
+    cost: 2.30, cal: 660, protein: 40, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 5, unit: "oz" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Mayonnaise", qty: 1, unit: "tbsp" },
+      { item: "Sweet chili sauce", qty: 1, unit: "tbsp" },
+      { item: "Cucumbers", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n9", category: "chicken", name: "Mississippi chicken sandwich", slots: ["lunch", "dinner"],
+    cost: 2.40, cal: 560, protein: 42, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 5, unit: "oz" },
+      { item: "Hamburger buns", qty: 1, unit: "" },
+      { item: "Ranch dressing", qty: 1, unit: "tbsp" },
+      { item: "Pepperoncini", qty: 2, unit: "" },
+      { item: "Butter", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n10", category: "chicken", name: "Chicken cordon bleu with green beans", slots: ["dinner"],
+    cost: 3.00, cal: 560, protein: 55, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 6, unit: "oz" },
+      { item: "Deli ham", qty: 1, unit: "oz" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Panko breadcrumbs", qty: 0.25, unit: "cup" },
+      { item: "Green beans", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n11", category: "chicken", name: "Chicken salad sandwich", slots: ["lunch"],
+    cost: 1.90, cal: 540, protein: 36, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 4, unit: "oz" },
+      { item: "Mayonnaise", qty: 2, unit: "tbsp" },
+      { item: "Celery", qty: 0.5, unit: "" },
+      { item: "Bread", qty: 2, unit: "slice" }
+    ]
+  },
+  {
+    id: "n12", category: "chicken", name: "Chicken pot pie", slots: ["dinner"],
+    cost: 2.20, cal: 620, protein: 30, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 4, unit: "oz" },
+      { item: "Frozen mixed vegetables", qty: 0.75, unit: "cup" },
+      { item: "Refrigerated pie crust", qty: 0.25, unit: "" },
+      { item: "Cream of chicken soup", qty: 0.33, unit: "can" }
+    ]
+  },
+  {
+    id: "n13", category: "chicken", name: "Broccoli chicken & rice casserole", slots: ["dinner"],
+    cost: 2.40, cal: 640, protein: 40, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 4, unit: "oz" },
+      { item: "Broccoli", qty: 1, unit: "cup" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Cream of chicken soup", qty: 0.25, unit: "can" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n14", category: "chicken", name: "Chicken enchiladas", slots: ["dinner"],
+    cost: 2.50, cal: 610, protein: 41, tags: [],
+    ingredients: [
+      { item: "Chicken breast", qty: 4, unit: "oz" },
+      { item: "Tortillas", qty: 2, unit: "" },
+      { item: "Enchilada sauce", qty: 0.33, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n15", category: "seafood", name: "Brown sugar glazed salmon with rice & green beans", slots: ["dinner"],
+    cost: 4.10, cal: 640, protein: 36, tags: [],
+    ingredients: [
+      { item: "Salmon fillet", qty: 5, unit: "oz" },
+      { item: "Brown sugar", qty: 1, unit: "tbsp" },
+      { item: "Soy sauce", qty: 1, unit: "tbsp" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Green beans", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n16", category: "seafood", name: "Garlic pepper shrimp with rice & broccoli", slots: ["lunch", "dinner"],
+    cost: 3.10, cal: 520, protein: 34, tags: [],
+    ingredients: [
+      { item: "Frozen shrimp", qty: 5, unit: "oz" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Broccoli", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n17", category: "seafood", name: "Shrimp peanut noodles", slots: ["lunch", "dinner"],
+    cost: 2.90, cal: 640, protein: 37, tags: [],
+    ingredients: [
+      { item: "Frozen shrimp", qty: 4, unit: "oz" },
+      { item: "Noodles (dry)", qty: 3, unit: "oz" },
+      { item: "Peanut butter", qty: 2, unit: "tbsp" },
+      { item: "Soy sauce", qty: 1, unit: "tbsp" },
+      { item: "Bell peppers", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n18", category: "seafood", name: "Maple Cajun mahi-mahi with rice & corn", slots: ["dinner"],
+    cost: 4.00, cal: 520, protein: 35, tags: [],
+    ingredients: [
+      { item: "Mahi-mahi fillet", qty: 5, unit: "oz" },
+      { item: "Maple syrup", qty: 1, unit: "tbsp" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Frozen corn", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n19", category: "seafood", name: "Tuna tostadas", slots: ["lunch"],
+    cost: 2.40, cal: 520, protein: 32, tags: [],
+    ingredients: [
+      { item: "Canned tuna", qty: 1, unit: "can" },
+      { item: "Tostada shells", qty: 2, unit: "" },
+      { item: "Mayonnaise", qty: 1, unit: "tbsp" },
+      { item: "Avocados", qty: 0.5, unit: "" },
+      { item: "Salsa", qty: 2, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n20", category: "seafood", name: "Tuna curry with rice", slots: ["lunch", "dinner"],
+    cost: 2.30, cal: 600, protein: 33, tags: [],
+    ingredients: [
+      { item: "Canned tuna", qty: 1, unit: "can" },
+      { item: "Light coconut milk", qty: 0.5, unit: "cup" },
+      { item: "Curry powder", qty: 1, unit: "tsp" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Frozen peas", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n21", category: "seafood", name: "Tuna melt", slots: ["lunch"],
+    cost: 1.90, cal: 540, protein: 37, tags: [],
+    ingredients: [
+      { item: "Canned tuna", qty: 1, unit: "can" },
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Mayonnaise", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n22", category: "seafood", name: "Tuna noodle casserole", slots: ["dinner"],
+    cost: 2.30, cal: 660, protein: 40, tags: [],
+    ingredients: [
+      { item: "Canned tuna", qty: 1, unit: "can" },
+      { item: "Noodles (dry)", qty: 3, unit: "oz" },
+      { item: "Cream of mushroom soup", qty: 0.33, unit: "can" },
+      { item: "Frozen peas", qty: 0.5, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n23", category: "seafood", name: "Scallops with pesto cream pasta", slots: ["dinner"],
+    cost: 6.50, cal: 720, protein: 36, tags: [],
+    ingredients: [
+      { item: "Scallops", qty: 5, unit: "oz" },
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Pesto", qty: 2, unit: "tbsp" },
+      { item: "Heavy cream", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n24", category: "seafood", name: "Lobster tail with potatoes & green beans", slots: ["dinner"],
+    cost: 11.50, cal: 520, protein: 32, tags: [],
+    ingredients: [
+      { item: "Lobster tails", qty: 1, unit: "" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Green beans", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n25", category: "seafood", name: "Crispy breaded fish with oven fries", slots: ["dinner"],
+    cost: 2.80, cal: 560, protein: 37, tags: [],
+    ingredients: [
+      { item: "Tilapia fillet", qty: 5, unit: "oz" },
+      { item: "Panko breadcrumbs", qty: 0.33, unit: "cup" },
+      { item: "Eggs", qty: 1, unit: "" },
+      { item: "Potatoes", qty: 1, unit: "" }
+    ]
+  },
+  {
+    id: "n26", category: "seafood", name: "Blackened tuna steak with rice & salad", slots: ["dinner"],
+    cost: 4.60, cal: 560, protein: 42, tags: [],
+    ingredients: [
+      { item: "Frozen ahi tuna", qty: 5, unit: "oz" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Romaine lettuce", qty: 1.5, unit: "cup" },
+      { item: "Olive oil", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n27", category: "seafood", name: "California roll cucumber salad", slots: ["lunch"],
+    cost: 2.70, cal: 480, protein: 16, tags: [],
+    ingredients: [
+      { item: "Imitation crab", qty: 4, unit: "oz" },
+      { item: "Cucumbers", qty: 1, unit: "" },
+      { item: "Avocados", qty: 0.5, unit: "" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Soy sauce", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n28", category: "beef", name: "French dip sandwich", slots: ["lunch", "dinner"],
+    cost: 3.40, cal: 590, protein: 42, tags: [],
+    ingredients: [
+      { item: "Deli roast beef", qty: 5, unit: "oz" },
+      { item: "Hoagie rolls", qty: 1, unit: "" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Beef broth", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n29", category: "beef", name: "Reuben sandwich", slots: ["lunch"],
+    cost: 3.00, cal: 610, protein: 34, tags: [],
+    ingredients: [
+      { item: "Deli corned beef", qty: 4, unit: "oz" },
+      { item: "Rye bread", qty: 2, unit: "slice" },
+      { item: "Sauerkraut", qty: 0.25, unit: "cup" },
+      { item: "Cheese slices", qty: 1, unit: "slice" }
+    ]
+  },
+  {
+    id: "n30", category: "beef", name: "Chili mac", slots: ["lunch", "dinner"],
+    cost: 2.40, cal: 720, protein: 40, tags: [],
+    ingredients: [
+      { item: "Ground beef", qty: 4, unit: "oz" },
+      { item: "Pasta (dry)", qty: 2.5, unit: "oz" },
+      { item: "Kidney beans (canned)", qty: 0.5, unit: "cup" },
+      { item: "Canned diced tomatoes", qty: 0.5, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" },
+      { item: "Chili powder", qty: 1, unit: "tsp" }
+    ]
+  },
+  {
+    id: "n31", category: "beef", name: "Tater tot casserole", slots: ["dinner"],
+    cost: 2.40, cal: 740, protein: 33, tags: [],
+    ingredients: [
+      { item: "Ground beef", qty: 4, unit: "oz" },
+      { item: "Tater tots", qty: 1, unit: "cup" },
+      { item: "Cream of mushroom soup", qty: 0.25, unit: "can" },
+      { item: "Frozen mixed vegetables", qty: 0.5, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n32", category: "beef", name: "Mexican beef casserole", slots: ["dinner"],
+    cost: 2.50, cal: 700, protein: 40, tags: [],
+    ingredients: [
+      { item: "Ground beef", qty: 4, unit: "oz" },
+      { item: "Tortillas", qty: 2, unit: "" },
+      { item: "Salsa", qty: 3, unit: "tbsp" },
+      { item: "Black beans (canned)", qty: 0.5, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n33", category: "beef", name: "Shipwreck casserole", slots: ["dinner"],
+    cost: 2.10, cal: 610, protein: 34, tags: [],
+    ingredients: [
+      { item: "Ground beef", qty: 4, unit: "oz" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Onions", qty: 0.5, unit: "" },
+      { item: "Kidney beans (canned)", qty: 0.5, unit: "cup" },
+      { item: "Canned diced tomatoes", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n34", category: "beef", name: "Creamed chipped beef on toast", slots: ["breakfast", "lunch"],
+    cost: 2.30, cal: 480, protein: 27, tags: [],
+    ingredients: [
+      { item: "Dried beef", qty: 2, unit: "oz" },
+      { item: "Milk", qty: 1, unit: "cup" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Bread", qty: 2, unit: "slice" }
+    ]
+  },
+  {
+    id: "n35", category: "beef", name: "Meatball sub casserole", slots: ["dinner"],
+    cost: 2.80, cal: 760, protein: 36, tags: [],
+    ingredients: [
+      { item: "Frozen meatballs", qty: 5, unit: "" },
+      { item: "Hoagie rolls", qty: 1, unit: "" },
+      { item: "Marinara sauce", qty: 0.5, unit: "cup" },
+      { item: "Shredded mozzarella", qty: 0.25, unit: "cup" }
+    ]
+  },
+  {
+    id: "n36", category: "beef", name: "Garlic butter sirloin steak with potatoes", slots: ["dinner"],
+    cost: 4.80, cal: 650, protein: 48, tags: [],
+    ingredients: [
+      { item: "Sirloin steak", qty: 6, unit: "oz" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Green beans", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n37", category: "beef", name: "Beef hot dogs with carrot sticks", slots: ["lunch", "dinner"],
+    cost: 1.80, cal: 640, protein: 18, tags: [],
+    ingredients: [
+      { item: "Beef hot dogs", qty: 2, unit: "" },
+      { item: "Hot dog buns", qty: 2, unit: "" },
+      { item: "Baby carrots", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n38", category: "beef", name: "Lamb chops with potatoes & green beans", slots: ["dinner"],
+    cost: 6.20, cal: 640, protein: 40, tags: [],
+    ingredients: [
+      { item: "Lamb chops", qty: 6, unit: "oz" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Green beans", qty: 1, unit: "cup" },
+      { item: "Olive oil", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n39", category: "pork", name: "Fettuccine Alfredo with ham & peas", slots: ["dinner"],
+    cost: 2.60, cal: 720, protein: 33, tags: [],
+    ingredients: [
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Alfredo sauce", qty: 0.33, unit: "cup" },
+      { item: "Deli ham", qty: 3, unit: "oz" },
+      { item: "Frozen peas", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n40", category: "pork", name: "Bacon & pickle flatbread pizza", slots: ["lunch", "dinner"],
+    cost: 2.60, cal: 640, protein: 27, tags: [],
+    ingredients: [
+      { item: "Flatbread", qty: 1, unit: "" },
+      { item: "Bacon", qty: 2, unit: "slice" },
+      { item: "Dill pickles", qty: 0.25, unit: "cup" },
+      { item: "Shredded mozzarella", qty: 0.33, unit: "cup" }
+    ]
+  },
+  {
+    id: "n41", category: "pork", name: "Brown sugar ham steak with sweet potatoes", slots: ["dinner"],
+    cost: 3.00, cal: 560, protein: 34, tags: [],
+    ingredients: [
+      { item: "Ham steak", qty: 5, unit: "oz" },
+      { item: "Brown sugar", qty: 1, unit: "tbsp" },
+      { item: "Sweet potatoes", qty: 1, unit: "" },
+      { item: "Green beans", qty: 1, unit: "cup" }
+    ]
+  },
+  {
+    id: "n42", category: "pork", name: "Kielbasa with peppers & potatoes", slots: ["dinner"],
+    cost: 2.70, cal: 640, protein: 20, tags: [],
+    ingredients: [
+      { item: "Kielbasa", qty: 4, unit: "oz" },
+      { item: "Bell peppers", qty: 1, unit: "" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Onions", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n43", category: "pork", name: "Brats with peppers & onions", slots: ["dinner"],
+    cost: 2.20, cal: 560, protein: 18, tags: [],
+    ingredients: [
+      { item: "Bratwurst", qty: 1, unit: "" },
+      { item: "Hot dog buns", qty: 1, unit: "" },
+      { item: "Bell peppers", qty: 0.5, unit: "" },
+      { item: "Onions", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n44", category: "pork", name: "Fried bologna sandwich", slots: ["lunch"],
+    cost: 1.50, cal: 560, protein: 18, tags: [],
+    ingredients: [
+      { item: "Bologna", qty: 3, unit: "slice" },
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Mayonnaise", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n45", category: "pork", name: "Grilled Hawaiian ham sandwich", slots: ["lunch"],
+    cost: 2.10, cal: 520, protein: 26, tags: [],
+    ingredients: [
+      { item: "Deli ham", qty: 3, unit: "oz" },
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Pineapple chunks", qty: 0.25, unit: "cup" },
+      { item: "Butter", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n46", category: "pork", name: "Cajun pork chops with rice & corn", slots: ["dinner"],
+    cost: 2.70, cal: 620, protein: 42, tags: [],
+    ingredients: [
+      { item: "Pork chops", qty: 6, unit: "oz" },
+      { item: "Rice (dry)", qty: 0.33, unit: "cup" },
+      { item: "Frozen corn", qty: 0.5, unit: "cup" },
+      { item: "Chili powder", qty: 1, unit: "tsp" }
+    ]
+  },
+  {
+    id: "n47", category: "pork", name: "Classic BLT", slots: ["lunch"],
+    cost: 2.00, cal: 520, protein: 18, tags: [],
+    ingredients: [
+      { item: "Bacon", qty: 4, unit: "slice" },
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Romaine lettuce", qty: 0.5, unit: "cup" },
+      { item: "Tomatoes", qty: 0.5, unit: "" },
+      { item: "Mayonnaise", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n48", category: "seafood", name: "Shrimp lo mein", slots: ["lunch", "dinner"],
+    cost: 2.70, cal: 580, protein: 34, tags: [],
+    ingredients: [
+      { item: "Frozen shrimp", qty: 4, unit: "oz" },
+      { item: "Noodles (dry)", qty: 3, unit: "oz" },
+      { item: "Frozen mixed vegetables", qty: 1, unit: "cup" },
+      { item: "Soy sauce", qty: 2, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n49", category: "vegetarian", name: "Cheesy ramen with egg & veggies", slots: ["lunch"],
+    cost: 0.90, cal: 520, protein: 19, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Ramen noodles", qty: 1, unit: "" },
+      { item: "Eggs", qty: 1, unit: "" },
+      { item: "Cheese slices", qty: 1, unit: "slice" },
+      { item: "Frozen mixed vegetables", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n50", category: "vegetarian", name: "Chickpea tacos", slots: ["lunch", "dinner"],
+    cost: 1.70, cal: 580, protein: 18, tags: ["vegetarian", "vegan"],
+    ingredients: [
+      { item: "Tortillas", qty: 3, unit: "" },
+      { item: "Chickpeas (canned)", qty: 0.75, unit: "cup" },
+      { item: "Salsa", qty: 2, unit: "tbsp" },
+      { item: "Avocados", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n51", category: "vegetarian", name: "Fettuccine with sweet pepper sauce", slots: ["dinner"],
+    cost: 2.10, cal: 680, protein: 20, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Bell peppers", qty: 1, unit: "" },
+      { item: "Heavy cream", qty: 0.25, unit: "cup" },
+      { item: "Parmesan cheese", qty: 2, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n52", category: "vegetarian", name: "Summer tomato basil pasta", slots: ["lunch", "dinner"],
+    cost: 1.70, cal: 600, protein: 20, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Tomatoes", qty: 2, unit: "" },
+      { item: "Olive oil", qty: 1, unit: "tbsp" },
+      { item: "Parmesan cheese", qty: 2, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n53", category: "vegetarian", name: "Garlic bread grilled cheese with tomato soup", slots: ["lunch"],
+    cost: 1.80, cal: 620, protein: 22, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Bread", qty: 2, unit: "slice" },
+      { item: "Cheese slices", qty: 2, unit: "slice" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Tomato soup", qty: 0.5, unit: "can" }
+    ]
+  },
+  {
+    id: "n54", category: "vegetarian", name: "Halushki (buttered cabbage & noodles)", slots: ["lunch", "dinner"],
+    cost: 1.20, cal: 520, protein: 14, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Cabbage", qty: 0.25, unit: "" },
+      { item: "Noodles (dry)", qty: 3, unit: "oz" },
+      { item: "Butter", qty: 1, unit: "tbsp" },
+      { item: "Onions", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n55", category: "vegetarian", name: "Cacio e pepe", slots: ["dinner"],
+    cost: 1.40, cal: 620, protein: 22, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Pasta (dry)", qty: 4, unit: "oz" },
+      { item: "Parmesan cheese", qty: 3, unit: "tbsp" },
+      { item: "Butter", qty: 1, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n56", category: "vegetarian", name: "Corn chowder with bread", slots: ["lunch", "dinner"],
+    cost: 1.70, cal: 520, protein: 16, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Frozen corn", qty: 1, unit: "cup" },
+      { item: "Potatoes", qty: 1, unit: "" },
+      { item: "Milk", qty: 1, unit: "cup" },
+      { item: "Onions", qty: 0.5, unit: "" },
+      { item: "Bread", qty: 1, unit: "slice" }
+    ]
+  },
+  {
+    id: "n57", category: "vegetarian", name: "Loaded potato soup", slots: ["lunch", "dinner"],
+    cost: 1.50, cal: 560, protein: 20, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Potatoes", qty: 2, unit: "" },
+      { item: "Milk", qty: 1, unit: "cup" },
+      { item: "Shredded cheese", qty: 0.25, unit: "cup" },
+      { item: "Onions", qty: 0.5, unit: "" }
+    ]
+  },
+  {
+    id: "n58", category: "vegetarian", name: "Eggplant pasta", slots: ["dinner"],
+    cost: 2.00, cal: 560, protein: 19, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Eggplant", qty: 0.5, unit: "" },
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Marinara sauce", qty: 0.5, unit: "cup" },
+      { item: "Parmesan cheese", qty: 2, unit: "tbsp" }
+    ]
+  },
+  {
+    id: "n59", category: "vegetarian", name: "Classic pancakes with berries", slots: ["breakfast"],
+    cost: 1.20, cal: 560, protein: 16, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Pancake mix", qty: 0.75, unit: "cup" },
+      { item: "Milk", qty: 0.5, unit: "cup" },
+      { item: "Eggs", qty: 1, unit: "" },
+      { item: "Maple syrup", qty: 1, unit: "tbsp" },
+      { item: "Frozen berries", qty: 0.5, unit: "cup" }
+    ]
+  },
+  {
+    id: "n60", category: "vegetarian", name: "Pesto pasta with peas", slots: ["lunch", "dinner"],
+    cost: 1.90, cal: 620, protein: 20, tags: ["vegetarian"],
+    ingredients: [
+      { item: "Pasta (dry)", qty: 3, unit: "oz" },
+      { item: "Pesto", qty: 2, unit: "tbsp" },
+      { item: "Frozen peas", qty: 0.5, unit: "cup" },
+      { item: "Parmesan cheese", qty: 1, unit: "tbsp" }
     ]
   }
 ];

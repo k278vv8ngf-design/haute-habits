@@ -73,6 +73,17 @@
           <legend>Foods I eat <small>(untick any you skip)</small></legend>
           <!-- filled in by app.js -->
         </fieldset>
+        <fieldset class="avoid">
+          <legend>Foods I don't eat <small>(dislikes or allergies)</small></legend>
+          <div class="avoid-add">
+            <label class="sr-only" for="avoidInput">Type a food you don't eat</label>
+            <input id="avoidInput" type="search" maxlength="40" placeholder="Type a food, e.g. yogurt" autocomplete="off" enterkeyhint="done">
+            <button type="button" class="btn small" id="avoidAddBtn">Add</button>
+          </div>
+          <div class="chip-wrap" id="avoidSuggest" aria-label="Suggestions"></div>
+          <div class="chip-wrap" id="avoidChips"></div>
+          <p class="hint" id="avoidHint"></p>
+        </fieldset>
 
         <div class="row">
           <label class="field">
@@ -88,6 +99,12 @@
           </label>
         </div>
 
+        <fieldset class="choice">
+          <legend>Meal variety</legend>
+          <label class="radio"><input type="radio" name="variety" value="1"> <span><b>Meal prep</b><small>One breakfast, one lunch and one dinner for the whole week</small></span></label>
+          <label class="radio"><input type="radio" name="variety" value="2"> <span><b>Prep twice a week</b><small>One set of meals for Mon–Thu, another for Fri–Sun</small></span></label>
+          <label class="radio"><input type="radio" name="variety" value="7" checked> <span><b>Something different every day</b><small>Up to 7 different meals for each meal time</small></span></label>
+        </fieldset>
         <fieldset class="choice">
           <legend>Daily calorie target</legend>
           <label class="radio"><input type="radio" name="calMethod" value="suggest" checked> <span><b>Claude's quick suggestion</b><small>Uses sex, age &amp; activity only</small></span></label>
@@ -166,30 +183,42 @@
       </div>
 
       <div id="weekContent" hidden>
+        <div class="card today" id="todayCard">
+          <div id="todayBody"></div>
+          <form id="foodForm" class="food-form" novalidate>
+            <p class="food-title">Log something else <small>(a snack, a meal out…)</small></p>
+            <div class="row">
+              <label class="field grow">
+                <span class="sr-only">Food</span>
+                <input name="food" type="text" maxlength="50" placeholder="e.g., Latte" autocomplete="off">
+              </label>
+              <label class="field cal">
+                <span class="sr-only">Calories</span>
+                <input name="cal" type="number" inputmode="numeric" min="1" max="3000" placeholder="Cal">
+              </label>
+              <button type="submit" class="btn small primary">Add</button>
+            </div>
+            <p class="error" id="foodError" role="alert"></p>
+          </form>
+        </div>
         <div class="card summary" id="summary"></div>
         <div class="toolbar">
           <button type="button" class="btn primary" id="rebuildBtn">↻ Rebuild week</button>
           <p class="hint">Rebuilding keeps any meal you've locked 🔒. A meal you choose with <b>Swap</b> gets locked for you.</p>
         </div>
         <div id="days"></div>
+        <details class="card add-card" id="pastDays">
+          <summary><h2>Past days</h2></summary>
+          <div class="add-body">
+            <p class="hint top">What you logged over the last two weeks.</p>
+            <ul id="pastList" class="history-list"></ul>
+          </div>
+        </details>
       </div>
     </section>
 
     <!-- ================= MEALS ================= -->
     <section id="tab-meals" class="tab" aria-labelledby="nav-meals" hidden>
-      <div class="card">
-        <div class="card-head">
-          <h2>Meal library</h2>
-          <span id="libCount" class="pill"></span>
-        </div>
-        <label class="field search">
-          <span class="sr-only">Search meals</span>
-          <input id="libSearch" type="search" placeholder="Search meals or ingredients" autocomplete="off">
-        </label>
-        <div class="chip-row" id="libChips" role="group" aria-label="Filter by category"></div>
-        <ul id="libList" class="lib-list"></ul>
-      </div>
-
       <details class="card add-card" id="addMealCard">
         <summary><h2>＋ Add your own meal</h2></summary>
         <form id="mealForm" novalidate>
@@ -240,6 +269,19 @@
           <p class="notice ok" id="mealMsg" aria-live="polite" hidden></p>
         </form>
       </details>
+      <div class="card">
+        <div class="card-head">
+          <h2>Meal library</h2>
+          <span id="libCount" class="pill"></span>
+        </div>
+        <label class="field search">
+          <span class="sr-only">Search meals</span>
+          <input id="libSearch" type="search" placeholder="Search meals or ingredients" autocomplete="off">
+        </label>
+        <div class="chip-row" id="libChips" role="group" aria-label="Filter by category"></div>
+        <ul id="libList" class="lib-list"></ul>
+      </div>
+
     </section>
 
     <!-- ================= WORKOUTS ================= -->
@@ -314,18 +356,30 @@
         <p>Your list appears here once you build a week of meals.</p>
         <button type="button" class="btn primary" data-goto="setup">Set up my goals</button>
       </div>
-      <div id="groceryContent" class="card" hidden>
+      <div id="groceryContent" hidden>
+      <div class="card">
+        <h2>Shopping at</h2>
+        <label class="field">
+          <span class="sr-only">Store</span>
+          <select id="storeSelect"><!-- filled in by app.js --></select>
+        </label>
+        <p class="hint top">Type each item's shelf price as you shop, and the total updates as you go. The app remembers your prices for each store, so next week most items are filled in already and you can see the estimate before you leave home.</p>
+      </div>
+      <div class="cart-bar" id="cartBar" aria-live="polite"></div>
+      <div class="card">
         <div class="card-head">
           <h2>Grocery list</h2>
           <span id="groceryCount" class="pill"></span>
         </div>
-        <p class="hint">Amounts cover the whole week. Your store total may be higher than the plan's estimate because you usually buy whole packages, but leftovers carry over to next week.</p>
+        <p class="hint">Amounts cover the whole week. Entering a price puts the item in your cart (✓). Prices are what you type in, not live store prices.</p>
         <ul id="groceryList" class="grocery-list"></ul>
         <div class="btn-row">
           <button type="button" class="btn" id="copyBtn">Copy list</button>
           <button type="button" class="btn" id="clearChecksBtn">Uncheck all</button>
         </div>
         <p class="hint" id="copyMsg" aria-live="polite"></p>
+        <div id="clearPricesWrap"></div>
+      </div>
       </div>
     </section>
 

@@ -3,3 +3,6 @@ Haute-Habits-*.png
 
 # Mac system files
 .DS_Store
+
+# Claude Code local settings
+.claude/

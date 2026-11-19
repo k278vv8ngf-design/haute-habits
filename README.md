@@ -82,27 +82,35 @@ New users first see a purple-and-café-noir cover with the tagline *Eat well. Mo
    - your first name (for the greeting)
    - your goal: lose, maintain, or build muscle
    - your eating style: no preference, vegetarian, vegan, or high-protein
-   - **Foods I eat**: untick any of Chicken & turkey, Seafood & fish, Beef, Pork, or Vegetarian
+   - **Foods I eat**: untick any of Chicken & turkey, Seafood & fish, Beef & lamb, Pork, or Vegetarian
+   - **Foods I don't eat**: type a food (or pick a suggestion) for dislikes or allergies. Meals whose name or listed ingredients include it are never suggested. This only checks listed ingredients, so it isn't an allergy guarantee.
    - a weekly budget range in $20 steps, from $20–$40 up to $280–$300
    - 2 or 3 meals a day
+   - **Meal variety**: *Meal prep* (one breakfast, one lunch and one dinner all week), *Prep twice a week* (Mon–Thu and Fri–Sun), or *Something different every day*
    - a daily calorie target, set one of three ways:
      - **Claude's quick suggestion** uses sex, age and activity with a built-in table simplified from the *Dietary Guidelines for Americans*, then adjusts for your goal (−400 to lose, +300 to build). Claude wrote these rules into the app ahead of time; nothing contacts Claude while the app runs.
      - **Estimate from body stats** uses the Mifflin-St Jeor formula.
      - **Type your own** lets you enter any number.
      - The suggestion and the estimate never go below 1,200 cal/day (female) or 1,500 cal/day (male).
 2. **Plan.** One tap builds 7 days of meals.
+   - **Today** card at the top: tap **Ate it** on today's planned meals and log anything else (a snack, a meal out) with its calories. It shows calories eaten, calories burned in today's workouts, and what's left of your target. **Past days** shows the last two weeks.
+   - With meal prep, each meal shows how many servings to prep, and **Swap** and **Lock** change it for every day it covers.
    - The planner sticks to your style and food categories, gets close to your calories (using 1×, 1.5× or 2× portions), stays under budget and avoids repeats.
    - **Swap** any meal; the one you pick gets locked. **Lock 🔒** meals to keep them when you rebuild the week.
    - You see the estimated cost against your range, plus average calories and protein.
 3. **Meals.**
-   - Browse **102 built-in meals** with category filters and a search box. There are 53 vegetarian (30 of them vegan), 21 chicken & turkey, 12 seafood & fish, 8 beef and 8 pork.
+   - Browse **162 built-in meals** with category filters and a search box. There are 68 vegetarian (32 of them vegan), 30 chicken & turkey, 26 seafood & fish, 19 beef & lamb and 19 pork. Sixty of them were inspired by a list of easy meals from Allrecipes and written as the app's own simplified versions (names only; no recipes or photos copied).
    - **Add your own meal** with a name, category, meal times, cost, calories, protein and ingredients. Your meals show a ★ and the planner picks them a little more often.
 4. **Workouts.**
    - **Log a workout** by choosing the type, minutes, date, how hard it felt and an optional note.
    - See this week's minutes, number of workouts and estimated calories burned, plus a bar for each day.
    - Set a weekly goal (minutes or number of workouts) and build a 🔥 streak of weeks where you hit it.
    - Calories burned are estimated with standard MET values. The app uses your weight if you chose "Estimate from my body stats" on Goals, and 150 lb otherwise.
-5. **Groceries.** One combined checklist for the week, with amounts rounded up. You can check items off and copy the list.
+5. **Groceries.** One combined checklist for the week, with amounts rounded up and a small picture for each item.
+   - Pick your store: Trader Joe's, H-E-B, Aldi, Walmart, Target or Whole Foods.
+   - Type each item's shelf price (and the brand, if you like) as you shop. Entering a price puts the item in your cart, and the purple bar at the top shows your running cart total, the whole list's estimate and how much is left of your budget.
+   - Prices are remembered for each store, so next week most items are already filled in. They're the prices **you** type, not live store prices (the app doesn't connect to any store).
+   - You can copy the list (with brands and prices).
 
 ## Files
 
@@ -140,7 +148,11 @@ Double-click `index.html`. It opens in your browser and works without internet. 
 | 12 | Enter age **12** | An error saying the app is for adults |
 | 13 | **Reset everything** (tap twice) | Everything clears and the welcome screen shows again |
 | 14 | Open the app for the first time | The welcome screen appears, and **Begin your week** goes to Goals. It doesn't appear again after a reload. |
-| 15 | After publishing, install it on your phone and turn on airplane mode | The app still opens and shows your plan |
+| 15 | Goals: type "yogurt" in **Foods I don't eat**, add it, then save | No yogurt meals in the plan or the Swap list. They show "Skipped: yogurt" in the Meals tab. |
+| 16 | Goals: choose **Meal prep**, then save | The Plan shows one "Every day" card with the same breakfast, lunch and dinner and "Prep 7 servings" |
+| 17 | Plan: tap **Ate it** on a meal, then log "Latte, 190" | Today's eaten calories and calories left update. They're still there after a reload. |
+| 18 | Groceries: pick **H-E-B** and type a price for two items | Both get ticked and the cart total adds them up. Switch to **Aldi** and back: H-E-B prices are remembered. |
+| 19 | After publishing, install it on your phone and turn on airplane mode | The app still opens and shows your plan |
 
 ## Changing the name or colours
 
@@ -151,7 +163,8 @@ Double-click `index.html`. It opens in your browser and works without internet. 
 
 - Costs and nutrition are rough estimates, not real store prices or lab values.
 - There are no accounts. Data lives in one browser on one device and doesn't sync between your phone and laptop.
-- Workouts don't change the meal plan's calorie target automatically; the activity level on Goals is the link between the two.
+- Workouts don't change the meal plan's calorie target automatically; the activity level on Goals is the link between the two. (The **Today** card does add today's workout calories to what's left for the day.)
+- Grocery prices are typed in by you. There are no live store prices, brands or product photos, because that would mean contacting store websites.
 - There are no exercise libraries, step counting or fitness-watch syncing.
 
 ## Disclaimer

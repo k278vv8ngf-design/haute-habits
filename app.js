@@ -24,7 +24,7 @@
   var CATEGORIES = [
     { key: "chicken", label: "Chicken & turkey" },
     { key: "seafood", label: "Seafood & fish" },
-    { key: "beef", label: "Beef" },
+    { key: "beef", label: "Beef & lamb" },
     { key: "pork", label: "Pork" },
     { key: "vegetarian", label: "Vegetarian" }
   ];
@@ -80,6 +80,48 @@
   WORKOUT_TYPES.forEach(function (w) { WORKOUT_BY_KEY[w.key] = w; });
   var INTENSITY_WORDS = ["Easy", "Moderate", "Hard"];
 
+  // Meal variety: which days share the same meals.
+  //   1 = meal prep (one set for the week), 2 = Mon–Thu + Fri–Sun, 7 = every day different
+  var VARIETY_GROUPS = {
+    1: [[0, 1, 2, 3, 4, 5, 6]],
+    2: [[0, 1, 2, 3], [4, 5, 6]],
+    7: [[0], [1], [2], [3], [4], [5], [6]]
+  };
+
+  // Stores for the grocery price tracker. Prices are typed in by the user, never fetched.
+  var STORES = [
+    { key: "traderjoes", label: "Trader Joe's" },
+    { key: "heb", label: "H-E-B" },
+    { key: "aldi", label: "Aldi" },
+    { key: "walmart", label: "Walmart" },
+    { key: "target", label: "Target" },
+    { key: "wholefoods", label: "Whole Foods" }
+  ];
+  var STORE_KEYS = STORES.map(function (st) { return st.key; });
+
+  // A small picture for each grocery item, chosen by keywords in its name.
+  var FOOD_ICONS = [
+    [/peanut/, "🥜"], [/soup/, "🥫"], [/ramen/, "🍜"], [/pancake/, "🥞"], [/hot dog bun/, "🍞"],
+    [/hot dog|brat|kielbasa|bologna/, "🌭"], [/lobster/, "🦞"], [/crab/, "🦀"], [/scallop/, "🐚"],
+    [/kimchi|sauerkraut|cabbage|pickle|celery/, "🥬"], [/tater/, "🥔"], [/sugar|syrup|jelly/, "🍯"],
+    [/egg(?!plant)/, "🥚"], [/eggplant/, "🍆"], [/banana/, "🍌"], [/\bapple/, "🍎"], [/lemon/, "🍋"],
+    [/pineapple/, "🍍"], [/berr/, "🫐"], [/avocado/, "🥑"], [/broccoli/, "🥦"], [/carrot/, "🥕"],
+    [/\bcorn\b/, "🌽"], [/sweet potato|potato/, "🥔"], [/tomato|marinara|salsa/, "🍅"], [/pepper/, "🫑"],
+    [/cucumber/, "🥒"], [/lettuce|romaine|spinach|coleslaw/, "🥬"], [/mushroom/, "🍄"], [/onion/, "🧅"],
+    [/bean|lentil|chickpea|edamame|pea/, "🫘"], [/rice|quinoa/, "🍚"], [/pasta|noodle/, "🍝"],
+    [/bread|bagel|muffin|bun|rolls\b|biscuit|pita|flatbread|tortilla|tostada|crouton|pie crust/, "🍞"], [/oat|granola|chia/, "🥣"],
+    [/milk|yogurt|cream cheese|cottage|heavy cream/, "🥛"], [/cheese|mozzarella|feta|ricotta|parmesan/, "🧀"],
+    [/chicken|turkey/, "🍗"], [/bacon|ham|pork|sausage/, "🥓"], [/beef|steak|meatball|lamb/, "🥩"],
+    [/salmon|tuna|cod|tilapia|mahi|fish/, "🐟"], [/shrimp/, "🍤"], [/tofu|tempeh/, "🧊"],
+    [/peanut|nut/, "🥜"], [/butter/, "🧈"], [/honey/, "🍯"], [/oil|dressing|mayo|sauce|pesto|tzatziki|hummus/, "🫙"],
+    [/broth/, "🍲"], [/powder/, "🧂"], [/coconut/, "🥥"], [/frozen/, "🧊"]
+  ];
+  function foodIcon(name) {
+    var n = name.toLowerCase();
+    for (var i = 0; i < FOOD_ICONS.length; i++) if (FOOD_ICONS[i][0].test(n)) return FOOD_ICONS[i][1];
+    return "🛒";
+  }
+
   // Built-in meals (meals.js) + meals the user adds on the Meals tab.
   var BUILT_IN_MEALS = window.MEALS || [];
   var MEALS = [];
@@ -94,9 +136,14 @@
   function emptyState() {
     return {
       settings: null, plan: null, checked: {}, customMeals: [],
-      workouts: [], workoutGoal: { kind: "minutes", value: 150 }
+      workouts: [], workoutGoal: { kind: "minutes", value: 150 },
+      log: {},                 // food eaten, by date: { "2026-11-18": [ {id, name, cal, protein, slot} ] }
+      prices: {},              // prices typed in, by store: { heb: { "Eggs|": { p: 3.49, b: "H-E-B" } } }
+      store: STORES[0].key
     };
   }
+
+  function isObj(v) { return !!v && typeof v === "object" && !Array.isArray(v); }
 
   function load() {
     var fresh = emptyState();
@@ -109,6 +156,10 @@
           s.customMeals = Array.isArray(s.customMeals) ? s.customMeals : [];
           s.workouts = Array.isArray(s.workouts) ? s.workouts : [];
           s.workoutGoal = s.workoutGoal || fresh.workoutGoal;
+          // Older saves didn't have the food log, store prices or store choice.
+          s.log = isObj(s.log) ? s.log : {};
+          s.prices = isObj(s.prices) ? s.prices : {};
+          if (STORE_KEYS.indexOf(s.store) === -1) s.store = fresh.store;
           // Older saves: give custom meals a category and settings a category list.
           s.customMeals.forEach(function (m) {
             if (!m.category) m.category = m.tags.indexOf("vegetarian") !== -1 ? "vegetarian" : "chicken";
@@ -116,6 +167,9 @@
           if (s.settings) {
             if (!Array.isArray(s.settings.cats) || !s.settings.cats.length) s.settings.cats = ALL_CATS.slice();
             s.settings.budget = budgetTop(s.settings.budget);
+            // Older saves: no "foods I don't eat" list, and every day was different.
+            if (!Array.isArray(s.settings.avoid)) s.settings.avoid = [];
+            if (!VARIETY_GROUPS[s.settings.variety]) s.settings.variety = 7;
           }
           return s;
         }
@@ -255,16 +309,65 @@
   /* ========== 4. Meal planning rules ========== */
   function slotsFor(settings) { return SLOT_SETS[settings.mealsPerDay] || SLOT_SETS[3]; }
 
-  // Does this meal fit the user's eating style AND the food categories they eat?
+  /*
+    Foods I don't eat: a meal is skipped when its name or any ingredient contains
+    one of the words (whole words, so "egg" skips "Eggs" but not "Eggplant").
+  */
+  var avoidCache = { key: null, list: [] };
+  function avoidMatchers(words) {
+    var key = words.join("|");
+    if (avoidCache.key === key) return avoidCache.list;
+    avoidCache = {
+      key: key,
+      list: words.map(function (w) {
+        var forms = [w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")];
+        var single = w.replace(/(es|s)$/, "");
+        if (single !== w && single.length > 2) forms.push(single.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+        return { word: w, re: new RegExp("(^|[^a-z])(" + forms.join("|") + ")(s|es)?([^a-z]|$)", "i") };
+      })
+    };
+    return avoidCache.list;
+  }
+
+  // Returns the first avoided word found in this meal, or "" if none.
+  function avoidedWord(meal, words) {
+    if (!words || !words.length) return "";
+    var text = [meal.name].concat(meal.ingredients.map(function (i) { return i.item; })).join(" · ");
+    var hit = avoidMatchers(words).filter(function (a) { return a.re.test(text); })[0];
+    return hit ? hit.word : "";
+  }
+
+  // Does this meal fit the user's eating style, food categories and foods they skip?
   function fits(meal) {
     var s = state.settings;
     if (s.style === "vegan" && meal.tags.indexOf("vegan") === -1) return false;
     if (s.style === "vegetarian" && meal.tags.indexOf("vegetarian") === -1) return false;
-    return (s.cats || ALL_CATS).indexOf(meal.category) !== -1;
+    if ((s.cats || ALL_CATS).indexOf(meal.category) === -1) return false;
+    return !avoidedWord(meal, s.avoid);
   }
 
   function candidatesFor(slotKey) {
     return MEALS.filter(function (m) { return m.slots.indexOf(slotKey) !== -1 && fits(m); });
+  }
+
+  // Groups of days that share the same meals (see VARIETY_GROUPS).
+  function planGroups() { return VARIETY_GROUPS[state.settings.variety] || VARIETY_GROUPS[7]; }
+  function groupIndexOf(d) {
+    var groups = planGroups();
+    for (var g = 0; g < groups.length; g++) if (groups[g].indexOf(d) !== -1) return g;
+    return 0;
+  }
+  function groupLabel(g) {
+    var days = planGroups()[g];
+    if (days.length === 1) return DAY_NAMES[days[0]];
+    if (days.length === 7) return "Every day";
+    return DAY_NAMES[days[0]].slice(0, 3) + "–" + DAY_NAMES[days[days.length - 1]].slice(0, 3);
+  }
+  // Put the same meal in every day of a group (each day gets its own copy).
+  function setGroupEntry(days, g, s, entry) {
+    planGroups()[g].forEach(function (d) {
+      days[d][s] = entry ? { mealId: entry.mealId, portion: entry.portion, locked: !!entry.locked } : null;
+    });
   }
 
   function proteinFocus() {
@@ -291,22 +394,25 @@
     return calErr + 1.5 * over + repeats - bonus - mine;
   }
 
-  function slotContext(days, d, s, used) {
+  // g = group of days, s = meal slot.
+  function slotContext(days, g, s, used) {
     var slot = slotsFor(state.settings)[s];
+    var prevDay = g > 0 ? planGroups()[g - 1][0] : -1;
     return {
       targetCal: calorieTarget() * slot.share,
       slotBudget: state.settings.budget * slot.share / 7,
       used: used,
-      prevId: d > 0 && days[d - 1] && days[d - 1][s] ? days[d - 1][s].mealId : null,
+      prevId: prevDay >= 0 && days[prevDay] && days[prevDay][s] ? days[prevDay][s].mealId : null,
       proteinFocus: proteinFocus()
     };
   }
 
-  function countUsed(days, skipD, skipS) {
+  // How often each meal is chosen, counting each group of days once.
+  function countUsed(days, skipG, skipS) {
     var used = {};
-    days.forEach(function (day, d) {
-      day.forEach(function (entry, s) {
-        if (!entry || (d === skipD && s === skipS)) return;
+    planGroups().forEach(function (group, g) {
+      (days[group[0]] || []).forEach(function (entry, s) {
+        if (!entry || (g === skipG && s === skipS)) return;
         used[entry.mealId] = (used[entry.mealId] || 0) + 1;
       });
     });
@@ -317,26 +423,27 @@
   function buildPlan(fillGapsOnly) {
     var settings = state.settings;
     var slots = slotsFor(settings);
+    var groups = planGroups();
     var old = state.plan && state.plan.mealsPerDay === settings.mealsPerDay ? state.plan.days : null;
     var days = [];
-    var d, s;
+    var g, s, d;
+    for (d = 0; d < 7; d++) days.push(slots.map(function () { return null; }));
 
-    // Start with locked meals that still fit the eating style and categories.
-    for (d = 0; d < 7; d++) {
-      days.push([]);
+    // Start with locked meals that still fit (taken from the first day of each group).
+    for (g = 0; g < groups.length; g++) {
       for (s = 0; s < slots.length; s++) {
-        var prev = old && old[d] && old[d][s];
+        var prev = old && old[groups[g][0]] && old[groups[g][0]][s];
         var keep = prev && (prev.locked || fillGapsOnly) && MEAL_BY_ID[prev.mealId] && fits(MEAL_BY_ID[prev.mealId]);
-        days[d].push(keep ? prev : null);
+        if (keep) setGroupEntry(days, g, s, prev);
       }
     }
 
     // Fill the open spots, best fit first, with a little randomness for variety.
     var used = countUsed(days, -1, -1);
-    for (d = 0; d < 7; d++) {
+    for (g = 0; g < groups.length; g++) {
       for (s = 0; s < slots.length; s++) {
-        if (days[d][s]) continue;
-        var ctx = slotContext(days, d, s, used);
+        if (days[groups[g][0]][s]) continue;
+        var ctx = slotContext(days, g, s, used);
         var best = null;
         candidatesFor(slots[s].key).forEach(function (m) {
           var p = bestPortion(m, ctx.targetCal);
@@ -344,14 +451,14 @@
           if (!best || score < best.score) best = { mealId: m.id, portion: p, score: score };
         });
         if (best) {
-          days[d][s] = { mealId: best.mealId, portion: best.portion, locked: false };
+          setGroupEntry(days, g, s, { mealId: best.mealId, portion: best.portion, locked: false });
           used[best.mealId] = (used[best.mealId] || 0) + 1;
         }
       }
     }
 
     if (!fillGapsOnly) trimToBudget(days);
-    state.plan = { mealsPerDay: settings.mealsPerDay, days: days };
+    state.plan = { mealsPerDay: settings.mealsPerDay, variety: settings.variety || 7, days: days };
   }
 
   function planCost(days) {
@@ -366,29 +473,31 @@
   // while hurting the calorie goal the least. Locked meals are never changed.
   function trimToBudget(days) {
     var slots = slotsFor(state.settings);
+    var groups = planGroups();
     var budget = state.settings.budget;
     for (var guard = 0; guard < 80 && planCost(days) > budget + 0.001; guard++) {
       var best = null;
-      for (var d = 0; d < 7; d++) {
+      for (var g = 0; g < groups.length; g++) {
         for (var s = 0; s < slots.length; s++) {
-          var cur = days[d][s];
+          var cur = days[groups[g][0]][s];
           if (!cur || cur.locked) continue;
+          var size = groups[g].length;
           var curCost = MEAL_BY_ID[cur.mealId].cost * cur.portion;
-          var used = countUsed(days, d, s);
+          var used = countUsed(days, g, s);
           var target = calorieTarget() * slots[s].share;
           candidatesFor(slots[s].key).forEach(function (m) {
             PORTIONS.forEach(function (p) {
               var cost = m.cost * p;
               if (cost >= curCost - 0.005) return;
               var calErr = Math.abs(m.cal * p - target) / target;
-              var value = (curCost - cost) / ((0.3 + calErr) * (1 + 0.3 * (used[m.id] || 0)));
-              if (!best || value > best.value) best = { d: d, s: s, mealId: m.id, portion: p, value: value };
+              var value = (curCost - cost) * size / ((0.3 + calErr) * (1 + 0.3 * (used[m.id] || 0)));
+              if (!best || value > best.value) best = { g: g, s: s, mealId: m.id, portion: p, value: value };
             });
           });
         }
       }
       if (!best) break;
-      days[best.d][best.s] = { mealId: best.mealId, portion: best.portion, locked: false };
+      setGroupEntry(days, best.g, best.s, { mealId: best.mealId, portion: best.portion, locked: false });
     }
   }
 
@@ -429,6 +538,8 @@
       cats: Array.prototype.slice.call(form.querySelectorAll("input[name=cat]:checked")).map(function (b) { return b.value; }),
       budget: n("budget"),
       mealsPerDay: parseInt(f.mealsPerDay.value, 10),
+      variety: parseInt((form.querySelector("input[name=variety]:checked") || {}).value, 10) || 7,
+      avoid: avoidDraft.slice(),
       calMethod: form.querySelector("input[name=calMethod]:checked").value,
       calories: n("calories"),
       sex: f.sex.value,
@@ -454,7 +565,61 @@
     });
     var radio = form.querySelector("input[name=calMethod][value=" + s.calMethod + "]");
     if (radio) radio.checked = true;
+    var vRadio = form.querySelector("input[name=variety][value='" + (s.variety || 7) + "']");
+    if (vRadio) vRadio.checked = true;
+    avoidDraft = (s.avoid || []).slice();
+    renderAvoid();
   }
+
+  /* ---- Foods I don't eat (search box + chips) ---- */
+  // The list being edited; it's saved with "Save & build my week".
+  var avoidDraft = [];
+
+  function allIngredientNames() {
+    var seen = {};
+    MEALS.forEach(function (m) { m.ingredients.forEach(function (i) { seen[i.item] = true; }); });
+    return Object.keys(seen).sort();
+  }
+
+  function addAvoid(word) {
+    var w = String(word || "").trim().toLowerCase().replace(/\s+/g, " ").slice(0, 40);
+    if (w.length < 2 || avoidDraft.indexOf(w) !== -1 || avoidDraft.length >= 40) return;
+    avoidDraft.push(w);
+    $("avoidInput").value = "";
+    renderAvoid();
+  }
+
+  function renderAvoid() {
+    var q = $("avoidInput").value.trim().toLowerCase();
+    var sug = $("avoidSuggest");
+    sug.textContent = "";
+    if (q.length >= 2) {
+      allIngredientNames().filter(function (n) {
+        return n.toLowerCase().indexOf(q) !== -1 && avoidDraft.indexOf(n.toLowerCase()) === -1;
+      }).slice(0, 6).forEach(function (n) {
+        sug.append(el("button", { type: "button", class: "chip", onclick: function () { addAvoid(n); $("avoidInput").focus(); } }, "＋ " + n));
+      });
+    }
+    var chips = $("avoidChips");
+    chips.textContent = "";
+    avoidDraft.forEach(function (w) {
+      chips.append(el("button", {
+        type: "button", class: "chip on", "aria-label": "Remove " + w,
+        onclick: function () { avoidDraft = avoidDraft.filter(function (x) { return x !== w; }); renderAvoid(); }
+      }, w + "  ✕"));
+    });
+    var hidden = avoidDraft.length ? MEALS.filter(function (m) { return avoidedWord(m, avoidDraft); }).length : 0;
+    $("avoidHint").textContent = (avoidDraft.length
+      ? "Skips " + hidden + (hidden === 1 ? " meal" : " meals") + " that list these foods. Tap a food to remove it. "
+      : "Type a food and tap Add, or pick a suggestion. ") +
+      "This checks the meal names and listed ingredients only, so it isn't a guarantee for allergies. Always check labels.";
+  }
+
+  $("avoidInput").addEventListener("input", renderAvoid);
+  $("avoidInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); addAvoid(e.target.value); }
+  });
+  $("avoidAddBtn").addEventListener("click", function () { addAvoid($("avoidInput").value); });
 
   function validate(s) {
     var errs = [];
@@ -539,6 +704,8 @@
     refreshMeals();
     try { localStorage.removeItem(STORE_KEY); } catch (err) { /* ignore */ }
     form.reset();
+    avoidDraft = [];
+    renderAvoid();
     updateGoalForm();
     $("formError").textContent = "";
     renderAll();
@@ -563,14 +730,18 @@
     var dayWrap = $("days");
     dayWrap.textContent = "";
 
-    days.forEach(function (day, d) {
+    var groups = planGroups();
+    var prep = groups.length < 7;
+    groups.forEach(function (group, g) {
+      var day = days[group[0]];
+      var size = group.length;
       var dayCal = 0, dayProtein = 0, dayCost = 0;
       var list = el("ul", { class: "meals" });
 
       day.forEach(function (entry, s) {
         if (!entry) {
           list.append(el("li", { class: "meal" }, el("span", { class: "slot", text: slots[s].label }),
-            el("p", { class: "meal-name", text: "No meal fits your choices here. Try ticking more food categories." })));
+            el("p", { class: "meal-name", text: "No meal fits your choices here. Try ticking more food categories or removing some foods you skip." })));
           return;
         }
         var m = MEAL_BY_ID[entry.mealId];
@@ -582,12 +753,15 @@
           "aria-pressed": entry.locked ? "true" : "false",
           "aria-label": (entry.locked ? "Unlock " : "Lock ") + m.name,
           title: entry.locked ? "Locked: stays when you rebuild" : "Lock this meal",
-          onclick: function () { entry.locked = !entry.locked; save(); renderWeek(); }
+          onclick: function () {
+            setGroupEntry(days, g, s, { mealId: entry.mealId, portion: entry.portion, locked: !entry.locked });
+            save(); renderWeek();
+          }
         }, entry.locked ? "🔒" : "🔓");
 
         var swapBtn = el("button", {
           type: "button", class: "btn small",
-          onclick: function () { openSwap(d, s); }
+          onclick: function () { openSwap(g, s); }
         }, "Swap");
 
         list.append(el("li", { class: "meal" + (entry.locked ? " locked" : "") },
@@ -595,21 +769,23 @@
             el("span", { class: "slot", text: slots[s].label + " · " + CAT_LABEL[m.category] }),
             entry.portion !== 1 ? el("span", { class: "pill", text: entry.portion + "× portion" }) : null
           ),
+          prep ? el("p", { class: "prep-note", text: "🥡 Prep " + (+(size * entry.portion).toFixed(1)) + " servings" +
+            (size === 7 ? " for the week" : " for " + groupLabel(g)) }) : null,
           el("p", { class: "meal-name", text: (m.custom ? "★ " : "") + m.name }),
           el("p", { class: "meta", text: num(cal) + " cal · " + num(prot) + " g protein · " + money(cost) }),
           el("div", { class: "meal-actions" }, swapBtn, lockBtn)
         ));
       });
 
-      weekCal += dayCal; weekProtein += dayProtein;
+      weekCal += dayCal * size; weekProtein += dayProtein * size;
       var calClass = Math.abs(dayCal - target) / target <= 0.1 ? "ok" : "warn";
 
-      dayWrap.append(el("details", { class: "card day", open: d === 0 ? true : null },
+      dayWrap.append(el("details", { class: "card day", open: g === 0 || prep ? true : null },
         el("summary", null,
-          el("span", { class: "day-name", text: DAY_NAMES[d] }),
+          el("span", { class: "day-name", text: groupLabel(g) }),
           el("span", { class: "day-stats" },
             el("span", { class: calClass, text: num(dayCal) + " cal" }),
-            " · " + money(dayCost))
+            " · " + money(dayCost) + (prep ? " a day" : ""))
         ),
         list
       ));
@@ -647,6 +823,7 @@
       ),
       info ? el("p", { class: "hint", text: info.explain }) : null
     ]);
+    renderToday();
   }
 
   $("rebuildBtn").addEventListener("click", function () {
@@ -656,11 +833,11 @@
   /* ---- Swap dialog ---- */
   var dialog = $("swapDialog");
 
-  function openSwap(d, s) {
+  function openSwap(g, s) {
     var slots = slotsFor(state.settings);
     var days = state.plan.days;
-    var cur = days[d][s];
-    var ctx = slotContext(days, d, s, countUsed(days, d, s));
+    var cur = days[planGroups()[g][0]][s];
+    var ctx = slotContext(days, g, s, countUsed(days, g, s));
     var options = candidatesFor(slots[s].key)
       .filter(function (m) { return !cur || m.id !== cur.mealId; })
       .map(function (m) {
@@ -670,7 +847,10 @@
       .sort(function (a, b) { return a.score - b.score; })
       .slice(0, 15);
 
-    $("swapTitle").textContent = "Swap " + DAY_NAMES[d] + " " + slots[s].label.toLowerCase();
+    var label = groupLabel(g);
+    $("swapTitle").textContent = planGroups().length === 7
+      ? "Swap " + label + " " + slots[s].label.toLowerCase()
+      : "Swap " + slots[s].label.toLowerCase() + " (" + (label === "Every day" ? "all week" : label) + ")";
     $("swapSub").textContent = "Best fits for your goals are listed first. The meal you pick will be locked.";
     var list = $("swapList");
     list.textContent = "";
@@ -679,7 +859,7 @@
       list.append(el("li", null, el("button", {
         type: "button", class: "swap-option",
         onclick: function () {
-          days[d][s] = { mealId: m.id, portion: p, locked: true };
+          setGroupEntry(days, g, s, { mealId: m.id, portion: p, locked: true });
           save(); closeSwap(); renderAll();
         }
       },
@@ -699,6 +879,146 @@
   }
   $("swapClose").addEventListener("click", closeSwap);
   dialog.addEventListener("click", function (e) { if (e.target === dialog) closeSwap(); });
+
+  /* ---- Today: what you actually ate (food log) ---- */
+  function todayKey() { return ymd(new Date()); }
+  function todayIndex() { return (new Date().getDay() + 6) % 7; } // Monday = 0
+
+  function logFor(date) { return state.log[date] || []; }
+
+  function addToLog(entry) {
+    var date = todayKey();
+    if (!state.log[date]) state.log[date] = [];
+    entry.id = "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    state.log[date].push(entry);
+    // Keep about three months of history so storage stays small.
+    var cutoff = ymd(addDays(new Date(), -90));
+    Object.keys(state.log).forEach(function (k) { if (k < cutoff) delete state.log[k]; });
+  }
+
+  function removeFromLog(date, id) {
+    state.log[date] = logFor(date).filter(function (x) { return x.id !== id; });
+    if (!state.log[date].length) delete state.log[date];
+  }
+
+  function burnedOn(date) {
+    return state.workouts.reduce(function (sum, w) { return w.date === date ? sum + workoutCalories(w) : sum; }, 0);
+  }
+
+  function renderToday() {
+    if (!(state.settings && state.plan)) return;
+    var date = todayKey();
+    var entries = logFor(date);
+    var target = calorieTarget();
+    var eaten = entries.reduce(function (sum, x) { return sum + x.cal; }, 0);
+    var burned = burnedOn(date);
+    var allowance = target + burned;
+    var left = allowance - eaten;
+    var pct = Math.min(100, eaten / allowance * 100);
+
+    var body = $("todayBody");
+    body.textContent = "";
+    var slots = slotsFor(state.settings);
+    var planned = el("ul", { class: "today-list" });
+    var shownIds = {};
+    (state.plan.days[todayIndex()] || []).forEach(function (entry, s) {
+      if (!entry) return;
+      var m = MEAL_BY_ID[entry.mealId];
+      if (!m) return;
+      var cal = Math.round(m.cal * entry.portion);
+      var logged = entries.filter(function (x) { return x.slot === slots[s].key && x.name === m.name; })[0];
+      if (logged) shownIds[logged.id] = true;
+      planned.append(el("li", { class: logged ? "eaten" : null },
+        el("div", { class: "today-main" },
+          el("span", { class: "slot", text: slots[s].label }),
+          el("p", { class: "meal-name", text: m.name }),
+          el("p", { class: "meta", text: num(cal) + " cal" })),
+        el("button", {
+          type: "button", class: "btn small" + (logged ? " eaten-btn" : ""),
+          "aria-pressed": logged ? "true" : "false",
+          onclick: function () {
+            if (logged) removeFromLog(date, logged.id);
+            else addToLog({ name: m.name, cal: cal, protein: Math.round(m.protein * entry.portion), slot: slots[s].key });
+            save(); renderToday();
+          }
+        }, logged ? "✓ Eaten" : "Ate it")
+      ));
+    });
+
+    var extras = el("ul", { class: "today-list" });
+    entries.filter(function (x) { return !shownIds[x.id]; }).forEach(function (x) {
+      extras.append(el("li", null,
+        el("div", { class: "today-main" },
+          el("p", { class: "meal-name", text: x.name }),
+          el("p", { class: "meta", text: num(x.cal) + " cal" })),
+        el("button", {
+          type: "button", class: "icon-btn", "aria-label": "Remove " + x.name,
+          onclick: function () { removeFromLog(date, x.id); save(); renderToday(); }
+        }, "✕")
+      ));
+    });
+
+    appendAll(body, [
+      el("div", { class: "card-head" },
+        el("h2", { text: "Today" }),
+        el("span", { class: "pill", text: DAY_NAMES[todayIndex()] })),
+      el("div", { class: "stats three" },
+        el("div", null, el("span", { class: "big", text: num(eaten) }), el("span", { text: "cal eaten" })),
+        el("div", null, el("span", { class: "big", text: num(burned) }), el("span", { text: "burned (workouts)" })),
+        el("div", null, el("span", { class: "big" + (left < 0 ? " over-text" : ""), text: num(Math.abs(left)) }),
+          el("span", { text: left < 0 ? "cal over" : "cal left" }))),
+      el("div", {
+        class: "bar " + (left < 0 ? "over" : pct > 90 ? "near" : "under"), role: "progressbar",
+        "aria-label": "Calories eaten today compared to your target", "aria-valuemin": "0",
+        "aria-valuemax": String(Math.round(allowance)), "aria-valuenow": String(Math.round(eaten))
+      }, el("span", { style: "width:" + pct.toFixed(1) + "%" })),
+      el("p", { class: "hint", text: "Left = your " + num(target) + " cal target, plus calories burned in today's workouts, minus what you ate. Estimates only." }),
+      planned.childNodes.length ? el("p", { class: "food-title", text: "From your plan" }) : null,
+      planned.childNodes.length ? planned : null,
+      extras.childNodes.length ? el("p", { class: "food-title", text: "Also logged" }) : null,
+      extras.childNodes.length ? extras : null
+    ]);
+    renderPastDays();
+  }
+
+  function renderPastDays() {
+    var list = $("pastList");
+    list.textContent = "";
+    var today = todayKey();
+    var dates = Object.keys(state.log).filter(function (k) { return k < today; }).sort().reverse().slice(0, 14);
+    if (!dates.length) {
+      list.append(el("li", { class: "hint", text: "Nothing yet. Tap “Ate it” on today's meals to start." }));
+      return;
+    }
+    var target = calorieTarget();
+    dates.forEach(function (date) {
+      var entries = logFor(date);
+      var eaten = entries.reduce(function (sum, x) { return sum + x.cal; }, 0);
+      var burned = burnedOn(date);
+      list.append(el("li", null,
+        el("div", { class: "lib-main" },
+          el("p", { class: "meal-name", text: prettyDate(date) }),
+          el("p", { class: "meta", text: entries.map(function (x) { return x.name; }).join(", ") })),
+        el("span", { class: "pill" + (eaten > target + burned ? " warn-pill" : ""), text: num(eaten) + " cal" })
+      ));
+    });
+  }
+
+  $("foodForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target.elements;
+    var name = f.food.value.trim().slice(0, 50);
+    var cal = parseFloat(f.cal.value);
+    var errs = [];
+    if (!name) errs.push("What did you eat?");
+    if (!isFinite(cal) || cal < 1 || cal > 3000) errs.push("Calories should be between 1 and 3,000.");
+    $("foodError").textContent = errs.join(" ");
+    if (errs.length) return;
+    addToLog({ name: name, cal: Math.round(cal) });
+    save();
+    f.food.value = ""; f.cal.value = "";
+    renderToday();
+  });
 
   /* ========== 5c. Meals screen (library + add your own) ========== */
   var libFilter = "all";
@@ -734,14 +1054,16 @@
     var list = $("libList");
     list.textContent = "";
     if (!shown.length) {
-      list.append(el("li", { class: "hint", text: libFilter === "mine" ? "You haven't added any meals yet. Use “Add your own meal” below." : "No meals match." }));
+      list.append(el("li", { class: "hint", text: libFilter === "mine" ? "You haven't added any meals yet. Use “Add your own meal” above.": "No meals match." }));
       return;
     }
     shown.forEach(function (m) {
       var times = m.slots.map(cap).join(", ");
+      var skipped = state.settings ? avoidedWord(m, state.settings.avoid) : "";
       var badges = el("span", { class: "badges" },
         el("span", { class: "tag cat-" + m.category, text: CAT_LABEL[m.category] }),
-        m.tags.indexOf("vegan") !== -1 ? el("span", { class: "tag", text: "Vegan" }) : null);
+        m.tags.indexOf("vegan") !== -1 ? el("span", { class: "tag", text: "Vegan" }) : null,
+        skipped ? el("span", { class: "tag skip", text: "Skipped: " + skipped }) : null);
       list.append(el("li", null,
         el("div", { class: "lib-main" },
           el("p", { class: "meal-name", text: (m.custom ? "★ " : "") + m.name }),
@@ -952,7 +1274,7 @@
         ),
         confirmButton("Delete", "btn small danger", "Delete " + type.label + " on " + prettyDate(w.date), function () {
           state.workouts = state.workouts.filter(function (x) { return x.id !== w.id; });
-          save(); renderWorkouts();
+          save(); renderWorkouts(); renderToday();
         })
       ));
     });
@@ -994,6 +1316,7 @@
     msg.hidden = false;
     msg.textContent = "Logged " + minutes + " min of " + WORKOUT_BY_KEY[type].label.toLowerCase() + " (~" + num(workoutCalories(w)) + " cal).";
     renderWorkouts();
+    renderToday();
   });
 
   $("goalForm").addEventListener("submit", function (e) {
@@ -1040,42 +1363,142 @@
     return qText + " " + unit;
   }
 
+  /* ---- Store prices (typed in by you, remembered per store) ---- */
+  function storePrices() {
+    if (!isObj(state.prices[state.store])) state.prices[state.store] = {};
+    return state.prices[state.store];
+  }
+  function storeLabel() {
+    return (STORES.filter(function (st) { return st.key === state.store; })[0] || STORES[0]).label;
+  }
+
+  // The running total bar: what's in your cart, and the whole list at the prices you know.
+  function renderCartBar(items) {
+    var prices = storePrices();
+    var cart = 0, list = 0, priced = 0;
+    items.forEach(function (g) {
+      var pr = prices[g.key];
+      if (!pr || !isFinite(pr.p)) return;
+      priced++;
+      list += pr.p;
+      if (state.checked[g.key]) cart += pr.p;
+    });
+    var budget = state.settings.budget;
+    var bar = $("cartBar");
+    bar.textContent = "";
+    appendAll(bar, [
+      el("div", { class: "cart-main" },
+        el("span", { class: "cart-label", text: "🛒 In your cart" }),
+        el("strong", { text: money(cart) })),
+      el("div", { class: "cart-sub" },
+        el("span", { text: "Whole list ≈ " + money(list) + (priced < items.length ? " (" + (items.length - priced) + " items not priced yet)" : "") }),
+        el("span", { class: cart > budget ? "over-text" : null,
+          text: cart > budget ? money(cart - budget) + " over your $" + budget + " budget" : money(budget - cart) + " left of $" + budget }))
+    ]);
+  }
+
   function renderGroceries() {
     var has = !!(state.settings && state.plan);
     $("groceryEmpty").hidden = has;
     $("groceryContent").hidden = !has;
     if (!has) return;
 
+    $("storeSelect").value = state.store;
     var items = groceryItems();
+    var prices = storePrices();
     var list = $("groceryList");
     list.textContent = "";
     var done = 0;
     items.forEach(function (g) {
       var checked = !!state.checked[g.key];
       if (checked) done++;
+      var pr = prices[g.key] || {};
+      var li;
       var box = el("input", {
-        type: "checkbox", checked: checked ? true : null,
+        type: "checkbox", checked: checked ? true : null, "aria-label": "In cart: " + g.item,
         onchange: function (ev) {
           if (ev.target.checked) state.checked[g.key] = true; else delete state.checked[g.key];
           save(); renderGroceries();
         }
       });
-      list.append(el("li", { class: checked ? "done" : null },
+      var priceIn = el("input", {
+        type: "text", inputmode: "decimal", class: "price-in", placeholder: "Price",
+        "aria-label": "Price paid for " + g.item + " at " + storeLabel(),
+        value: isFinite(pr.p) ? pr.p.toFixed(2) : null,
+        oninput: function (ev) {
+          var v = parseFloat(ev.target.value.replace(/[^0-9.]/g, ""));
+          var entry = storePrices()[g.key] || {};
+          if (isFinite(v) && v >= 0 && v <= 500) {
+            entry.p = Math.round(v * 100) / 100;
+            storePrices()[g.key] = entry;
+            // Typing a price puts the item in your cart.
+            state.checked[g.key] = true;
+            box.checked = true;
+            li.classList.add("done");
+          } else {
+            delete entry.p;
+            if (entry.b) storePrices()[g.key] = entry; else delete storePrices()[g.key];
+          }
+          save();
+          renderCartBar(items);
+          updateCount();
+        }
+      });
+      var brandIn = el("input", {
+        type: "text", class: "brand-in", placeholder: "Brand (optional)", maxlength: "40",
+        "aria-label": "Brand of " + g.item, value: pr.b || null,
+        oninput: function (ev) {
+          var entry = storePrices()[g.key] || {};
+          var b = ev.target.value.trim().slice(0, 40);
+          if (b) entry.b = b; else delete entry.b;
+          if (entry.b || isFinite(entry.p)) storePrices()[g.key] = entry; else delete storePrices()[g.key];
+          save();
+        }
+      });
+      li = el("li", { class: checked ? "done" : null },
         el("label", null, box,
+          el("span", { class: "g-icon", "aria-hidden": "true", text: foodIcon(g.item) }),
           el("span", { class: "g-item", text: g.item }),
-          el("span", { class: "g-qty", text: formatQty(g) }))
-      ));
+          el("span", { class: "g-qty", text: formatQty(g) })),
+        el("div", { class: "g-price" },
+          el("span", { class: "dollar", "aria-hidden": "true", text: "$" }), priceIn, brandIn)
+      );
+      list.append(li);
     });
-    $("groceryCount").textContent = done + " of " + items.length + " checked";
+
+    function updateCount() {
+      var n = items.filter(function (g) { return state.checked[g.key]; }).length;
+      $("groceryCount").textContent = n + " of " + items.length + " in cart";
+    }
+    updateCount();
+    renderCartBar(items);
+
+    var wrap = $("clearPricesWrap");
+    wrap.textContent = "";
+    if (Object.keys(prices).length) {
+      wrap.append(confirmButton("Forget my " + storeLabel() + " prices", "btn small danger", "Forget all prices saved for " + storeLabel(), function () {
+        state.prices[state.store] = {};
+        save(); renderGroceries();
+      }));
+    }
   }
+
+  STORES.forEach(function (st) { $("storeSelect").append(el("option", { value: st.key }, st.label)); });
+  $("storeSelect").addEventListener("change", function (e) {
+    state.store = e.target.value;
+    save(); renderGroceries();
+  });
 
   $("clearChecksBtn").addEventListener("click", function () {
     state.checked = {}; save(); renderGroceries();
   });
 
   $("copyBtn").addEventListener("click", function () {
-    var text = APP_NAME + " grocery list\n" + groceryItems().map(function (g) {
-      return (state.checked[g.key] ? "[x] " : "[ ] ") + g.item + " - " + formatQty(g);
+    var prices = storePrices();
+    var text = APP_NAME + " grocery list (" + storeLabel() + ")\n" + groceryItems().map(function (g) {
+      var pr = prices[g.key] || {};
+      return (state.checked[g.key] ? "[x] " : "[ ] ") + g.item + " - " + formatQty(g) +
+        (pr.b ? " - " + pr.b : "") + (isFinite(pr.p) ? " - " + money(pr.p) : "");
     }).join("\n");
     var msg = $("copyMsg");
     function fallback() {
@@ -1130,6 +1553,7 @@
 
   /* ========== 6. Start-up ========== */
   if (state.settings) fillForm(state.settings);
+  else renderAvoid();
   updateGoalForm();
   updateVeganBox();
   resetWorkoutDate();

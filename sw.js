@@ -6,7 +6,7 @@
   When you change any app file, bump CACHE_VERSION (v1 -> v2 ...) so phones
   pick up the new version.
 */
-var CACHE_VERSION = "haute-habits-v1";
+var CACHE_VERSION = "haute-habits-v3";
 var FILES = [
   "./",
   "./index.html",
